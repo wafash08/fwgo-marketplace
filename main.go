@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"marketplace/configs"
+	"marketplace/helpers"
 	"marketplace/routes"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +30,8 @@ func main() {
 		ExposeHeaders: "Content-Length",
 	}))
 
+	configs.InitDB()
+	helpers.Migration()
 	routes.Router(app)
 
 	err = app.Listen(":3000")
