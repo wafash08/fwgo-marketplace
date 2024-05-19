@@ -14,6 +14,8 @@ func Router(a *fiber.App) {
 		return c.SendString("Hello world")
 	})
 
+	api.Post("/upload", controllers.UploadFile)
+
 	products := api.Group("/products")
 	products.Get("/", controllers.FindAllProducts)
 	products.Get("/:id", controllers.FindProductById)
