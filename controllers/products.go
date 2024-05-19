@@ -20,6 +20,7 @@ type Pagination struct {
 }
 
 func FindAllProducts(c *fiber.Ctx) error {
+	// pagination
 	pageOld := c.Query("page")
 	limitOld := c.Query("limit")
 	page, _ := strconv.Atoi(pageOld)
@@ -31,6 +32,7 @@ func FindAllProducts(c *fiber.Ctx) error {
 		limit = 5
 	}
 	offset := (page - 1) * limit
+	// sort
 	sort := c.Query("sort")
 	if sort == "" {
 		sort = "ASC"
@@ -40,6 +42,7 @@ func FindAllProducts(c *fiber.Ctx) error {
 		sortby = "name"
 	}
 	sort = sortby + " " + strings.ToLower(sort)
+	// search
 	keyword := c.Query("search")
 	products, err := models.FindAllProducts(sort, keyword, limit, offset)
 	totalData := models.CountData()

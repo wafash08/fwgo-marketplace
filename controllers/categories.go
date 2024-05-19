@@ -12,6 +12,7 @@ import (
 )
 
 func FindAllCategories(c *fiber.Ctx) error {
+	// sort
 	sort := c.Query("sort")
 	if sort == "" {
 		sort = "ASC"
@@ -21,6 +22,7 @@ func FindAllCategories(c *fiber.Ctx) error {
 		sortby = "name"
 	}
 	sort = sortby + " " + strings.ToLower(sort)
+	// search
 	keyword := c.Query("search")
 	categories, err := models.FindAllCategories(sort, keyword)
 	if err != nil {
