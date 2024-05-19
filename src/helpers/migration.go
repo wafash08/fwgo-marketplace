@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"marketplace/configs"
-	"marketplace/models"
+	"marketplace/src/configs"
+	"marketplace/src/models"
 )
 
 func Migration() {

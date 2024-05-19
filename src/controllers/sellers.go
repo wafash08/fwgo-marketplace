@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"fmt"
-	"marketplace/models"
+	"marketplace/src/models"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"

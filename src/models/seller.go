@@ -2,7 +2,7 @@ package models
 
 import (
 	"database/sql"
-	"marketplace/configs"
+	"marketplace/src/configs"
 	"time"
 
 	"github.com/gofiber/fiber/v2"

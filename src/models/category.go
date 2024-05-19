@@ -1,7 +1,7 @@
 package models
 
 import (
-	"marketplace/configs"
+	"marketplace/src/configs"
 	"time"
 
 	"github.com/gofiber/fiber/v2"

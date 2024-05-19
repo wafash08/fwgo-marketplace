@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	"marketplace/helpers"
-	"marketplace/models"
+	"marketplace/src/helpers"
+	"marketplace/src/models"
 	"math"
 	"strconv"
 	"strings"

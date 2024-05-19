@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"marketplace/configs"
-	"marketplace/helpers"
-	"marketplace/routes"
+	"marketplace/src/configs"
+	"marketplace/src/helpers"
+	"marketplace/src/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

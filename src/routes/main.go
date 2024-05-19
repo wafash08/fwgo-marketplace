@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"marketplace/controllers"
-	"marketplace/middlewares"
+	"marketplace/src/controllers"
+	"marketplace/src/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 )
