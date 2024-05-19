@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"fmt"
+	"marketplace/helpers"
 	"marketplace/models"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginResponse struct {
@@ -16,7 +19,7 @@ type LoginResponse struct {
 	Email     string           `json:"email"`
 	Role      string           `json:"role"`
 	Addresses []models.Address `json:"addresses"`
-	// Token     string           `json:"token"`
+	Token     string           `json:"token"`
 }
 
 func LoginSeller(c *fiber.Ctx) error {
@@ -31,7 +34,20 @@ func LoginSeller(c *fiber.Ctx) error {
 
 	sellerFromDB, err := models.FindSellerByEmail(seller.Email)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"code": fiber.StatusNotFound, "message": "Email is not found"})
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"code": fiber.StatusNotFound, "message": fmt.Sprintf("Account with email %s is not found", seller.Email)})
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(sellerFromDB.Password), []byte(seller.Password))
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"code":    fiber.StatusUnauthorized,
+			"message": "Email or password is wrong",
+		})
+	}
+
+	token, err := helpers.GenerateToken(os.Getenv("SECRET_KEY"), seller.Email)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"code": fiber.StatusInternalServerError, "message": "Failed to generate token"})
 	}
 
 	loginResponse := LoginResponse{
@@ -42,7 +58,7 @@ func LoginSeller(c *fiber.Ctx) error {
 		Role:      sellerFromDB.Role,
 		Email:     sellerFromDB.Email,
 		Addresses: sellerFromDB.Addresses,
-		// Token:     token,
+		Token:     token,
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -61,6 +77,15 @@ func RegisterSeller(c *fiber.Ctx) error {
 			"message": "Invalid request body",
 		})
 	}
+
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(seller.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"code":    fiber.StatusInternalServerError,
+			"message": "Ups, an error has occured in our server",
+		})
+	}
+	seller.Password = string(hashPassword)
 
 	err = models.CreateSeller(&seller)
 	if err != nil {

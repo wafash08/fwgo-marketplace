@@ -2,6 +2,7 @@ package routes
 
 import (
 	"marketplace/controllers"
+	"marketplace/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,14 +17,14 @@ func Router(a *fiber.App) {
 	products := api.Group("/products")
 	products.Get("/", controllers.FindAllProducts)
 	products.Get("/:id", controllers.FindProductById)
-	products.Post("/", controllers.CreateProduct)
+	products.Post("/", middlewares.JwtMiddleware(), controllers.CreateProduct)
 	products.Put("/:id", controllers.UpdateProduct)
 	products.Delete("/:id", controllers.DeleteProduct)
 
 	categories := api.Group("/categories")
 	categories.Get("/", controllers.FindAllCategories)
 	categories.Get("/:id", controllers.FindCategoryByID)
-	categories.Post("/", controllers.CreateCategory)
+	categories.Post("/", middlewares.JwtMiddleware(), controllers.CreateCategory)
 	categories.Put("/:id", controllers.UpdateCategory)
 	categories.Delete("/:id", controllers.DeleteCategory)
 
@@ -40,7 +41,7 @@ func Router(a *fiber.App) {
 	addresses := api.Group("addresses")
 	addresses.Get("/", controllers.FindAllAddresses)
 	addresses.Get("/:id", controllers.FindAddressByID)
-	addresses.Post("/", controllers.CreateAddress)
+	addresses.Post("/", middlewares.JwtMiddleware(), controllers.CreateAddress)
 	addresses.Post("/:id", controllers.UpdateAddress)
 	addresses.Delete("/:id", controllers.DeleteAddress)
 }

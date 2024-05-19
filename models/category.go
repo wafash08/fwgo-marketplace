@@ -11,7 +11,7 @@ type Category struct {
 	ID        uint      `json:"id" gorm:"primarykey"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Name      string    `json:"name" gorm:"not null" validate:"required,min=3,max=50"`
+	Name      string    `json:"name" gorm:"not null"`
 	Color     string    `json:"color" gorm:"not null"`
 	Image     string    `json:"image" gorm:"not null"`
 	Products  []Product `json:"products" gorm:"foreignKey:category_id;references:id"`
