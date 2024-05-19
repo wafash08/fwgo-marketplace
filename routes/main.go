@@ -37,6 +37,7 @@ func Router(a *fiber.App) {
 	auth := api.Group("auth")
 	auth.Post("/register/seller", controllers.RegisterSeller)
 	auth.Post("/login/seller", controllers.LoginSeller)
+	auth.Post("/refresh-token", controllers.RefreshToken)
 
 	addresses := api.Group("addresses")
 	addresses.Get("/", controllers.FindAllAddresses)
@@ -44,4 +45,5 @@ func Router(a *fiber.App) {
 	addresses.Post("/", middlewares.JwtMiddleware(), controllers.CreateAddress)
 	addresses.Post("/:id", controllers.UpdateAddress)
 	addresses.Delete("/:id", controllers.DeleteAddress)
+
 }
