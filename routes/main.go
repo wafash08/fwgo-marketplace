@@ -26,4 +26,21 @@ func Router(a *fiber.App) {
 	categories.Post("/", controllers.CreateCategory)
 	categories.Put("/:id", controllers.UpdateCategory)
 	categories.Delete("/:id", controllers.DeleteCategory)
+
+	seller := api.Group("sellers")
+	seller.Get("/", controllers.FindAllSellers)
+	seller.Get("/:id", controllers.FindSellerById)
+	seller.Put("/:id", controllers.UpdateSeller)
+	seller.Delete("/:id", controllers.DeleteSeller)
+
+	auth := api.Group("auth")
+	auth.Post("/register/seller", controllers.RegisterSeller)
+	auth.Post("/login/seller", controllers.LoginSeller)
+
+	addresses := api.Group("addresses")
+	addresses.Get("/", controllers.FindAllAddresses)
+	addresses.Get("/:id", controllers.FindAddressByID)
+	addresses.Post("/", controllers.CreateAddress)
+	addresses.Post("/:id", controllers.UpdateAddress)
+	addresses.Delete("/:id", controllers.DeleteAddress)
 }

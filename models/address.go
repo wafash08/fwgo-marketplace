@@ -1,6 +1,11 @@
 package models
 
-import "time"
+import (
+	"marketplace/configs"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 type Address struct {
 	ID                   uint      `json:"id" gorm:"primaryKey;column:id"`
@@ -14,9 +19,49 @@ type Address struct {
 	City                 string    `json:"city" gorm:"column:city"`
 	Primary              bool      `json:"primary" gorm:"column:primary"`
 	UserId               uint      `gorm:"column:user_id"`
-	User                 Seller    `gorm:"foreignKey:user_id;references:id"`
+	User                 Seller    `json:"user" gorm:"foreignKey:user_id;references:id"`
 }
 
 func (a *Address) TableName() string {
 	return "addresses"
+}
+
+func FindAllAddresses() ([]*Address, error) {
+	var addresses []*Address
+	err := configs.DB.Preload("User").Find(&addresses).Error
+	if err != nil {
+		return nil, err
+	}
+	return addresses, nil
+}
+
+func FindAddressByID(id int) (*Address, error) {
+	var address Address
+	err := configs.DB.Preload("User").Take(&address, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &address, nil
+}
+
+func CreateAddress(a *Address) error {
+	err := configs.DB.Create(&a).Error
+	return err
+}
+
+func UpdateAddress(id int, address *Address) error {
+	result := configs.DB.Model(&Address{}).Where("id = ?", id).Updates(address)
+	if result.RowsAffected == 0 {
+		return fiber.ErrNotFound
+	}
+
+	return result.Error
+}
+
+func DeleteAddress(id int) error {
+	result := configs.DB.Delete(&Address{}, "id = ?", id)
+	if result.RowsAffected == 0 {
+		return fiber.ErrNotFound
+	}
+	return result.Error
 }

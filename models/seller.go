@@ -2,7 +2,10 @@ package models
 
 import (
 	"database/sql"
+	"marketplace/configs"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Seller struct {
@@ -23,4 +26,44 @@ type Seller struct {
 
 func (s *Seller) TableName() string {
 	return "sellers"
+}
+
+func FindAllSellers() ([]*Seller, error) {
+	var sellers []*Seller
+	err := configs.DB.Find(&sellers).Error
+	return sellers, err
+}
+
+func FindSellerByID(id int) (*Seller, error) {
+	var seller Seller
+	err := configs.DB.Take(&seller, "id = ?", id).Error
+	return &seller, err
+}
+
+func FindSellerByEmail(email string) (*Seller, error) {
+	var seller Seller
+	result := configs.DB.Where("email = ?", email).Take(&seller)
+	return &seller, result.Error
+}
+
+func CreateSeller(s *Seller) error {
+	err := configs.DB.Create(&s).Error
+	return err
+}
+
+func UpdateSeller(id int, seller *Seller) error {
+	result := configs.DB.Model(&Seller{}).Where("id = ?", id).Updates(seller)
+	if result.RowsAffected == 0 {
+		return fiber.ErrNotFound
+	}
+
+	return result.Error
+}
+
+func DeleteSeller(id int) error {
+	result := configs.DB.Delete(&Seller{}, "id = ?", id)
+	if result.RowsAffected == 0 {
+		return fiber.ErrNotFound
+	}
+	return result.Error
 }
