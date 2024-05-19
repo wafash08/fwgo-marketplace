@@ -11,7 +11,7 @@ type Product struct {
 	ID          int       `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-	Name        string    `json:"name" gorm:"not null"`
+	Name        string    `json:"name" gorm:"not null" validate:"required,min=3,max=100"`
 	Brand       string    `json:"brand" gorm:"not null"`
 	Rating      int       `json:"rating" gorm:"default:0"`
 	Price       float64   `json:"price" gorm:"not null"`
