@@ -60,7 +60,7 @@ var (
 	NotIncludeSpace           = regexp.MustCompile(`\s`)
 	MustIncludeOneUppercase   = regexp.MustCompile(`[A-Z]`)
 	MustIncludeOneNumber      = regexp.MustCompile(`[0-9]`)
-	MustIncludeOneSpecialChar = regexp.MustCompile(`[!@#~$%^&*(),.?":{}|<>]`)
+	MustIncludeOneSpecialChar = regexp.MustCompile(`[!@#~$%^&*(),.?"_:{}|<>]`)
 )
 
 func ValidatePassword(password string) error {

@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type LoginResponse struct {
+type LoginSellerResponse struct {
 	ID           uint             `json:"id"`
 	CreatedAt    time.Time        `json:"created_at"`
 	UpdatedAt    time.Time        `json:"updated_at"`
@@ -21,6 +21,17 @@ type LoginResponse struct {
 	Addresses    []models.Address `json:"addresses"`
 	Token        string           `json:"token"`
 	RefreshToken string           `json:"refresh_token"`
+}
+
+type LoginCustomerResponse struct {
+	ID           uint      `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Name         string    `json:"name"`
+	Email        string    `json:"email"`
+	Role         string    `json:"role"`
+	Token        string    `json:"token"`
+	RefreshToken string    `json:"refresh_token"`
 }
 
 func LoginSeller(c *fiber.Ctx) error {
@@ -49,6 +60,7 @@ func LoginSeller(c *fiber.Ctx) error {
 	secretKey := os.Getenv("SECRET_KEY")
 	payload := map[string]interface{}{
 		"email": seller.Email,
+		"role":  seller.Role,
 	}
 
 	token, err := helpers.GenerateToken(secretKey, payload)
@@ -61,7 +73,7 @@ func LoginSeller(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"code": fiber.StatusInternalServerError, "message": "Failed to generate refresh token"})
 	}
 
-	loginResponse := LoginResponse{
+	loginResponse := LoginSellerResponse{
 		ID:           sellerFromDB.ID,
 		CreatedAt:    sellerFromDB.CreatedAt,
 		UpdatedAt:    sellerFromDB.UpdatedAt,
@@ -132,6 +144,109 @@ func RegisterSeller(c *fiber.Ctx) error {
 		"code":    fiber.StatusCreated,
 		"status":  "created",
 		"message": "Your account has successfully registered",
+	})
+}
+
+func RegisterCustomer(c *fiber.Ctx) error {
+	var customer models.Customer
+	err := c.BodyParser(&customer)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"code":    fiber.StatusBadRequest,
+			"message": "Invalid request body",
+		})
+	}
+	errors := helpers.ValidateStruct(customer)
+	if len(errors) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	}
+
+	err = helpers.ValidatePassword(customer.Password)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"code":    fiber.StatusBadRequest,
+			"message": err.Error(),
+		})
+	}
+
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(customer.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"code":    fiber.StatusInternalServerError,
+			"message": "Ups, an error has occured in our server",
+		})
+	}
+	customer.Password = string(hashPassword)
+
+	err = models.CreateCustomer(&customer)
+	if err != nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"code":    fiber.StatusConflict,
+			"message": fmt.Sprintf("email %v has already been used", customer.Email),
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"code":    fiber.StatusCreated,
+		"status":  "created",
+		"message": "Your account has successfully registered",
+	})
+}
+
+func LoginCustomer(c *fiber.Ctx) error {
+	var customer models.Customer
+	err := c.BodyParser(&customer)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"code":    fiber.StatusBadRequest,
+			"message": "Invalid request body",
+		})
+	}
+
+	customerFromDB, err := models.FindCustomerByEmail(customer.Email)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"code": fiber.StatusNotFound, "message": fmt.Sprintf("Account with email %s is not found", customer.Email)})
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(customerFromDB.Password), []byte(customer.Password))
+	if err != nil || customer.Password == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"code":    fiber.StatusUnauthorized,
+			"message": "Email or password is wrong",
+		})
+	}
+
+	secretKey := os.Getenv("SECRET_KEY")
+	payload := map[string]interface{}{
+		"email": customer.Email,
+		"role":  customer.Role,
+	}
+
+	token, err := helpers.GenerateToken(secretKey, payload)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"code": fiber.StatusInternalServerError, "message": "Failed to generate token"})
+	}
+
+	refreshToken, err := helpers.GenerateRefreshToken(secretKey, payload)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"code": fiber.StatusInternalServerError, "message": "Failed to generate refresh token"})
+	}
+
+	loginResponse := LoginCustomerResponse{
+		ID:           customerFromDB.ID,
+		CreatedAt:    customerFromDB.CreatedAt,
+		UpdatedAt:    customerFromDB.UpdatedAt,
+		Name:         customerFromDB.Name,
+		Role:         customerFromDB.Role,
+		Email:        customerFromDB.Email,
+		Token:        token,
+		RefreshToken: refreshToken,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"code":   fiber.StatusOK,
+		"status": "ok",
+		"data":   loginResponse,
 	})
 }
 

@@ -20,7 +20,7 @@ func Router(a *fiber.App) {
 	products := api.Group("/products")
 	products.Get("/", controllers.FindAllProducts)
 	products.Get("/:id", controllers.FindProductById)
-	products.Post("/", middlewares.JwtMiddleware(), controllers.CreateProduct)
+	products.Post("/", middlewares.JwtMiddleware(), middlewares.RoleCheckMiddleware("seller"), controllers.CreateProduct)
 	products.Put("/:id", controllers.UpdateProduct)
 	products.Delete("/:id", controllers.DeleteProduct)
 
@@ -31,21 +31,30 @@ func Router(a *fiber.App) {
 	categories.Put("/:id", controllers.UpdateCategory)
 	categories.Delete("/:id", controllers.DeleteCategory)
 
-	seller := api.Group("sellers")
-	seller.Get("/", controllers.FindAllSellers)
-	seller.Get("/:id", controllers.FindSellerById)
-	seller.Put("/:id", controllers.UpdateSeller)
-	seller.Delete("/:id", controllers.DeleteSeller)
-
-	auth := api.Group("auth")
+	auth := api.Group("/auth")
 	auth.Post("/register/seller", controllers.RegisterSeller)
 	auth.Post("/login/seller", controllers.LoginSeller)
+	auth.Post("/register/customer", controllers.RegisterCustomer)
+	auth.Post("/login/customer", controllers.LoginCustomer)
 	auth.Post("/refresh-token", controllers.RefreshToken)
 
-	addresses := api.Group("addresses")
+	seller := api.Group("/sellers")
+	seller.Get("/", controllers.FindAllSellers)
+	seller.Get("/:id", middlewares.JwtMiddleware(), controllers.FindSellerById)
+	seller.Put("/:id", middlewares.JwtMiddleware(), controllers.UpdateSeller)
+	seller.Delete("/:id", middlewares.JwtMiddleware(), controllers.DeleteSeller)
+
+	customers := api.Group("/customers")
+	customers.Get("/", controllers.FindAllCustomers)
+	customers.Get("/:id", middlewares.JwtMiddleware(), controllers.FindCustomerById)
+	customers.Put("/:id", middlewares.JwtMiddleware(), controllers.UpdateCustomer)
+	customers.Delete("/:id", middlewares.JwtMiddleware(), controllers.DeleteCustomer)
+
+	addresses := api.Group("/addresses")
 	addresses.Get("/", controllers.FindAllAddresses)
 	addresses.Get("/:id", controllers.FindAddressByID)
 	addresses.Post("/", middlewares.JwtMiddleware(), controllers.CreateAddress)
-	addresses.Post("/:id", controllers.UpdateAddress)
+	addresses.Put("/:id", controllers.UpdateAddress)
 	addresses.Delete("/:id", controllers.DeleteAddress)
+
 }
