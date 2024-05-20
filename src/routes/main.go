@@ -48,5 +48,4 @@ func Router(a *fiber.App) {
 	addresses.Post("/", middlewares.JwtMiddleware(), controllers.CreateAddress)
 	addresses.Post("/:id", controllers.UpdateAddress)
 	addresses.Delete("/:id", controllers.DeleteAddress)
-
 }

@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -52,4 +54,27 @@ func isValidFileType(validFileTypes []string, fileType string) bool {
 		}
 	}
 	return false
+}
+
+var (
+	NotIncludeSpace           = regexp.MustCompile(`\s`)
+	MustIncludeOneUppercase   = regexp.MustCompile(`[A-Z]`)
+	MustIncludeOneNumber      = regexp.MustCompile(`[0-9]`)
+	MustIncludeOneSpecialChar = regexp.MustCompile(`[!@#~$%^&*(),.?":{}|<>]`)
+)
+
+func ValidatePassword(password string) error {
+	if len(password) < 8 {
+		return fmt.Errorf("password should contain minimal 8 characters")
+	} else if NotIncludeSpace.MatchString(password) {
+		return fmt.Errorf("password should not contain space")
+	} else if !MustIncludeOneUppercase.MatchString(password) {
+		return fmt.Errorf("password should contain one uppercase")
+	} else if !MustIncludeOneNumber.MatchString(password) {
+		return fmt.Errorf("password should contain one number")
+	} else if !MustIncludeOneSpecialChar.MatchString(password) {
+		return fmt.Errorf("password should contain one special character")
+	} else {
+		return nil
+	}
 }

@@ -89,6 +89,27 @@ func RegisterSeller(c *fiber.Ctx) error {
 			"message": "Invalid request body",
 		})
 	}
+	// for k, v := range seller {
+	// 	fmt.Printf("%v = %v ", k, v)
+	// }
+	// seller = helpers.XSSMiddleware(seller)
+	// var newSeller models.Seller
+	// mapstructure.Decode(seller, &newSeller)
+
+	// fmt.Println("seller phone number > ", newSeller.PhoneNumber)
+	// fmt.Println("seller store name > ", newSeller.StoreName)
+	errors := helpers.ValidateStruct(seller)
+	if len(errors) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	}
+
+	err = helpers.ValidatePassword(seller.Password)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"code":    fiber.StatusBadRequest,
+			"message": err.Error(),
+		})
+	}
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(seller.Password), bcrypt.DefaultCost)
 	if err != nil {
