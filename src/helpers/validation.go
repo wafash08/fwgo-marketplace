@@ -34,7 +34,7 @@ func ValidateStruct(param any) []*ErrorResponse {
 
 func SizeUploadValidation(fileSize int64, maxFileSize int64) error {
 	if fileSize > maxFileSize {
-		return fiber.NewError(fiber.StatusRequestEntityTooLarge, "Ukuran file melebihi 2MB")
+		return fiber.NewError(fiber.StatusRequestEntityTooLarge, "the file size exceeds the maximal size. The size must be less than 2 MB")
 	}
 	return nil
 }

@@ -20,7 +20,9 @@ func UploadFileLocal(c *fiber.Ctx) error {
 
 	// Validasi ukuran file (maksimal 2MB)
 	maxFileSize := int64(2 << 20) // 2MB
-	if err := helpers.SizeUploadValidation(file.Size, maxFileSize); err != nil {
+	err = helpers.SizeUploadValidation(file.Size, maxFileSize)
+	fmt.Println("err", err)
+	if err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
 			"code":    fiber.StatusUnprocessableEntity,
 			"message": "The file size exceeds the maximal size. The size must be less than 2 MB",

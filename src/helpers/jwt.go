@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -9,6 +10,7 @@ import (
 func GenerateToken(secretKey string, payload map[string]interface{}) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
+	fmt.Println("payload > ", payload)
 
 	for key, value := range payload {
 		claims[key] = value

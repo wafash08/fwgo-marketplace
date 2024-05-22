@@ -28,7 +28,7 @@ func JwtMiddleware() fiber.Handler {
 			})
 		}
 
-		_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
@@ -42,6 +42,24 @@ func JwtMiddleware() fiber.Handler {
 			})
 		}
 
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if ok && token.Valid {
+			fmt.Println("claims > ", claims)
+			c.Locals("user", claims)
+		} else {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"status":     "unauthorized",
+				"statusCode": 401,
+				"message":    "Token claims unauthorized",
+			})
+		}
+
 		return c.Next()
 	}
+}
+
+func UserLocals(c *fiber.Ctx) jwt.MapClaims {
+	user := c.Locals("user").(jwt.MapClaims)
+
+	return user
 }

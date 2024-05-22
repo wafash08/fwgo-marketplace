@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"marketplace/src/helpers"
+	"marketplace/src/middlewares"
 	"marketplace/src/models"
 	"math"
 	"strconv"
@@ -44,15 +45,9 @@ func FindAllProducts(c *fiber.Ctx) error {
 	sort = sortby + " " + strings.ToLower(sort)
 	// search
 	keyword := c.Query("search")
-	products, err := models.FindAllProducts(sort, keyword, limit, offset)
+	products := models.FindAllProducts(sort, keyword, limit, offset)
 	totalData := models.CountData()
 	totalPage := math.Ceil(float64(totalData) / float64(limit))
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"code":    fiber.StatusInternalServerError,
-			"message": "Ups, unknown error has occured in our server.",
-		})
-	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"code":   fiber.StatusOK,
 		"status": "ok",
@@ -83,7 +78,21 @@ func FindProductById(c *fiber.Ctx) error {
 }
 
 func CreateProduct(c *fiber.Ctx) error {
-	var product map[string]interface{}
+	user := middlewares.UserLocals(c)
+	role := user["role"].(string)
+
+	fmt.Println("user > ", user)
+	fmt.Println("role > ", role)
+
+	if role != "seller" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"code":    fiber.StatusForbidden,
+			"message": "You don't have authorization for creating product",
+		})
+	}
+
+	fmt.Println("user >> ", user)
+	var product models.Product
 	err := c.BodyParser(&product)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -92,17 +101,17 @@ func CreateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	product = helpers.XSSMiddleware(product)
+	// product = helpers.XSSMiddleware(product)
 
-	var newProduct models.Product
-	mapstructure.Decode(product, &newProduct)
+	// var newProduct models.Product
+	// mapstructure.Decode(product, &newProduct)
 
-	errors := helpers.ValidateStruct(newProduct)
+	errors := helpers.ValidateStruct(product)
 	if len(errors) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 
-	err = models.CreateProduct(&newProduct)
+	err = models.CreateProduct(&product)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"code":    fiber.StatusInternalServerError,

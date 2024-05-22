@@ -9,7 +9,7 @@ import (
 )
 
 type Seller struct {
-	ID          uint           `json:"id" gorm:"primaryKey;column:id"`
+	ID          uint           `json:"id" gorm:"primaryKey;"`
 	CreatedAt   time.Time      `json:"created_at" gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt   time.Time      `json:"updated_at" gorm:"column:updated_at;autoCreateTime;autoUpdateTime"`
 	Name        string         `json:"name" gorm:"column:name;not null" validate:"required"`
@@ -21,7 +21,7 @@ type Seller struct {
 	Image       sql.NullString `json:"image" gorm:"column:image;default:null"`
 	Gender      sql.NullString `json:"gender" gorm:"column:gender;default:null"`
 	Birth       sql.NullTime   `json:"birth" gorm:"column:birth;default:null"`
-	Addresses   []Address      `json:"addresses" gorm:"foreignKey:user_id;references:id"`
+	Addresses   []Address      `json:"addresses" gorm:"foreignKey:user_id"`
 }
 
 func (s *Seller) TableName() string {

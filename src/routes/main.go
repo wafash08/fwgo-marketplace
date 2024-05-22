@@ -20,7 +20,7 @@ func Router(a *fiber.App) {
 	products := api.Group("/products")
 	products.Get("/", controllers.FindAllProducts)
 	products.Get("/:id", controllers.FindProductById)
-	products.Post("/", middlewares.JwtMiddleware(), middlewares.RoleCheckMiddleware("seller"), controllers.CreateProduct)
+	products.Post("/", middlewares.JwtMiddleware(), controllers.CreateProduct)
 	products.Put("/:id", controllers.UpdateProduct)
 	products.Delete("/:id", controllers.DeleteProduct)
 
@@ -40,13 +40,13 @@ func Router(a *fiber.App) {
 
 	seller := api.Group("/sellers")
 	seller.Get("/", controllers.FindAllSellers)
-	seller.Get("/:id", middlewares.JwtMiddleware(), controllers.FindSellerById)
+	seller.Get("/:id", controllers.FindSellerById)
 	seller.Put("/:id", middlewares.JwtMiddleware(), controllers.UpdateSeller)
 	seller.Delete("/:id", middlewares.JwtMiddleware(), controllers.DeleteSeller)
 
 	customers := api.Group("/customers")
 	customers.Get("/", controllers.FindAllCustomers)
-	customers.Get("/:id", middlewares.JwtMiddleware(), controllers.FindCustomerById)
+	customers.Get("/:id", controllers.FindCustomerById)
 	customers.Put("/:id", middlewares.JwtMiddleware(), controllers.UpdateCustomer)
 	customers.Delete("/:id", middlewares.JwtMiddleware(), controllers.DeleteCustomer)
 

@@ -59,8 +59,9 @@ func LoginSeller(c *fiber.Ctx) error {
 
 	secretKey := os.Getenv("SECRET_KEY")
 	payload := map[string]interface{}{
-		"email": seller.Email,
-		"role":  seller.Role,
+		"id":    sellerFromDB.ID,
+		"email": sellerFromDB.Email,
+		"role":  sellerFromDB.Role,
 	}
 
 	token, err := helpers.GenerateToken(secretKey, payload)
@@ -80,7 +81,6 @@ func LoginSeller(c *fiber.Ctx) error {
 		Name:         sellerFromDB.Name,
 		Role:         sellerFromDB.Role,
 		Email:        sellerFromDB.Email,
-		Addresses:    sellerFromDB.Addresses,
 		Token:        token,
 		RefreshToken: refreshToken,
 	}
@@ -218,8 +218,9 @@ func LoginCustomer(c *fiber.Ctx) error {
 
 	secretKey := os.Getenv("SECRET_KEY")
 	payload := map[string]interface{}{
-		"email": customer.Email,
-		"role":  customer.Role,
+		"id":    customerFromDB.ID,
+		"email": customerFromDB.Email,
+		"role":  customerFromDB.Role,
 	}
 
 	token, err := helpers.GenerateToken(secretKey, payload)

@@ -55,7 +55,7 @@ func FindCategoryByID(c *fiber.Ctx) error {
 }
 
 func CreateCategory(c *fiber.Ctx) error {
-	var category map[string]interface{}
+	var category models.Category
 	err := c.BodyParser(&category)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -64,18 +64,12 @@ func CreateCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	category = helpers.XSSMiddleware(category)
-
-	// Convert map to Category model using mapstructure
-	var newCategory models.Category
-	mapstructure.Decode(category, &newCategory)
-
-	errors := helpers.ValidateStruct(newCategory)
+	errors := helpers.ValidateStruct(category)
 	if len(errors) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 
-	err = models.CreateCategory(&newCategory)
+	err = models.CreateCategory(&category)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"code":    fiber.StatusInternalServerError,

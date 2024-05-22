@@ -14,7 +14,7 @@ type Category struct {
 	Name      string    `json:"name" gorm:"not null"`
 	Color     string    `json:"color" gorm:"not null"`
 	Image     string    `json:"image" gorm:"not null"`
-	Products  []Product `json:"products" gorm:"foreignKey:category_id;references:id"`
+	Products  []Product `json:"products"`
 }
 
 func (c *Category) TableName() string {

@@ -21,22 +21,18 @@ type Product struct {
 	Image       string    `json:"image" gorm:"not null"`
 	Condition   string    `json:"condition" gorm:"not null"`
 	Description string    `json:"description"`
-	CategoryId  uint      `json:"category_id"`
-	Category    Category  `json:"category" gorm:"foreignKey:category_id;references:id"`
+	CategoryID  uint      `json:"category_id"`
 }
 
 func (p *Product) TableName() string {
 	return "products"
 }
 
-func FindAllProducts(sort, name string, limit, offset int) ([]*Product, error) {
+func FindAllProducts(sort, name string, limit, offset int) []*Product {
 	var products []*Product
 	name = "%" + name + "%"
-	err := configs.DB.Preload("Category").Order(sort).Limit(limit).Offset(offset).Where("name ILIKE ?", name).Find(&products).Error
-	if err != nil {
-		return nil, err
-	}
-	return products, nil
+	configs.DB.Preload("Category").Order(sort).Limit(limit).Offset(offset).Where("name ILIKE ?", name).Find(&products)
+	return products
 }
 
 func CountData() int64 {
